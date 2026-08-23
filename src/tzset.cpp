@@ -22,18 +22,22 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <Arduino.h>
 #include "TinyTZ.h"
+#include "string.h"
+#include "stdio.h"
+#include "ctype.h"
+#include "stdlib.h"
 
-#define min(a, b)    ((a) < (b) ? (a) : (b))
-#define max(a, b)    ((a) > (b) ? (a) : (b))
-#define sign(x)      ((x) < 0 ? -1 : 1)
 
-#define SECSPERMIN  60
-#define MINSPERHOUR 60
-#define HOURSPERDAY 24
-#define SECSPERHOUR  (SECSPERMIN * MINSPERHOUR)
-#define SECSPERDAY  ((long) SECSPERHOUR * HOURSPERDAY)
+#define TINYTZ_MIN(a, b)    ((a) < (b) ? (a) : (b))
+#define TINYTZ_MAX(a, b)    ((a) > (b) ? (a) : (b))
+#define TINYTZ_SIGN(x)      ((x) < 0 ? -1 : 1)
+
+#define TINYTZ_SECSPERMIN  60
+#define TINYTZ_MINSPERHOUR 60
+#define TINYTZ_HOURSPERDAY 24
+#define TINYTZ_SECSPERHOUR  (TINYTZ_SECSPERMIN * TINYTZ_MINSPERHOUR)
+#define TINYTZ_SECSPERDAY  ((long) TINYTZ_SECSPERHOUR * TINYTZ_HOURSPERDAY)
 
 
 /* Nonzero if YEAR is a leap year (every 4 years,
@@ -59,7 +63,7 @@ const unsigned int __mon_yday[2][13] =
 
 static uint32_t compute_offset (uint32_t ss, uint32_t mm, uint32_t hh)
 {
-  return min (ss, 59) + min (mm, 59) * 60 + min (hh, 24) * 60 * 60;
+  return TINYTZ_MIN (ss, 59) + TINYTZ_MIN (mm, 59) * 60 + TINYTZ_MIN (hh, 24) * 60 * 60;
 }
 
 
@@ -94,8 +98,8 @@ void __tzset_parse_tz (const char *tz)
   else
     tz += consumed;
 
-  memcpy(tz_rules[0].name, tzbuf, min(consumed,TZ_NAME_MAX_LEN));
-  tz_rules[0].name[min(consumed,TZ_NAME_MAX_LEN)]=0;
+  memcpy(tz_rules[0].name, tzbuf, TINYTZ_MIN(consumed,TZ_NAME_MAX_LEN));
+  tz_rules[0].name[TINYTZ_MIN(consumed,TZ_NAME_MAX_LEN)]=0;
 
   /* Figure out the standard offset from UTC.  */
   if (*tz == '\0' || (*tz != '+' && *tz != '-' && !isdigit (*tz)))
@@ -148,8 +152,8 @@ void __tzset_parse_tz (const char *tz)
 	tz += consumed;
 
       //tz_rules[1].name = __tzstring (tzbuf);
-      memcpy(tz_rules[1].name, tzbuf, min(consumed,TZ_NAME_MAX_LEN));
-      tz_rules[1].name[min(consumed,TZ_NAME_MAX_LEN)]=0;
+      memcpy(tz_rules[1].name, tzbuf, TINYTZ_MIN(consumed,TZ_NAME_MAX_LEN));
+      tz_rules[1].name[TINYTZ_MIN(consumed,TZ_NAME_MAX_LEN)]=0;
 
       /* Figure out the DST offset from GMT.  */
       if (*tz == '-' || *tz == '+')
@@ -193,7 +197,8 @@ void __tzset_parse_tz (const char *tz)
     {
       /* There is no DST.  */
       //tz_rules[1].name = tz_rules[0].name;
-      strncpy(tz_rules[1].name, tz_rules[0].name, TZ_NAME_MAX_LEN);
+      memcpy(tz_rules[1].name, tz_rules[0].name, TINYTZ_MIN(TZ_NAME_MAX_LEN, strlen(tz_rules[0].name)));
+      tz_rules[1].name[TINYTZ_MIN(TZ_NAME_MAX_LEN, strlen(tz_rules[0].name))] = 0;
       tz_rules[1].offset = tz_rules[0].offset;
       goto out;
     }
@@ -316,7 +321,7 @@ void __tzset_compute_change (tz_rule *rule, int year)
 	 /* ... except every 100th year ... */
 	 - ((year - 1) / 100 - 1970 / 100)
 	 /* ... but still every 400th year.  */
-	 + ((year - 1) / 400 - 1970 / 400)) * SECSPERDAY;
+	 + ((year - 1) / 400 - 1970 / 400)) * TINYTZ_SECSPERDAY;
   else
     t = 0;
 
@@ -327,15 +332,15 @@ void __tzset_compute_change (tz_rule *rule, int year)
 	 In non-leap years, or if the day number is 59 or less, just
 	 add SECSPERDAY times the day number-1 to the time of
 	 January 1, midnight, to get the day.  */
-      t += (rule->d - 1) * SECSPERDAY;
+      t += (rule->d - 1) * TINYTZ_SECSPERDAY;
       if (rule->d >= 60 && __isleap (year))
-	t += SECSPERDAY;
+	t += TINYTZ_SECSPERDAY;
       break;
 
     case J0:
       /* n - Day of year.
 	 Just add SECSPERDAY times the day number to the time of Jan 1st.  */
-      t += rule->d * SECSPERDAY;
+      t += rule->d * TINYTZ_SECSPERDAY;
       break;
 
     case M:
@@ -347,7 +352,7 @@ void __tzset_compute_change (tz_rule *rule, int year)
 	  &__mon_yday[__isleap (year)][rule->m];
 
 	/* First add SECSPERDAY for each day in months before M.  */
-	t += myday[-1] * SECSPERDAY;
+	t += myday[-1] * TINYTZ_SECSPERDAY;
 
 	/* Use Zeller's Congruence to get day-of-week of first day of month. */
 	m1 = (rule->m + 9) % 12 + 1;
@@ -371,7 +376,7 @@ void __tzset_compute_change (tz_rule *rule, int year)
 	  }
 
 	/* D is the day-of-month (zero-origin) of the day we want.  */
-	t += d * SECSPERDAY;
+	t += d * TINYTZ_SECSPERDAY;
       }
       break;
     }
