@@ -25,8 +25,7 @@
 #ifndef TINYTZ_H
 #define TINYTZ_H
 
-#include <Arduino.h>
-
+#include <stdint.h>
 /* Set TINY_PARSER to select POSIX TZ string parser:
      0 = GNU C Library parser
      1 = TinyTZ parser
@@ -35,7 +34,7 @@
   40 bytes less SRAM, but might not be as robust as the GNU libc one.
 */     
 #define TINY_PARSER 1
-
+#define UNIX_OFFSET 0
 
 #define TZ_NAME_MAX_LEN 8
 

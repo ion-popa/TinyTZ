@@ -21,7 +21,6 @@
   along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
 #include <time.h>
 #include "TinyTZ.h"
 
@@ -45,13 +44,10 @@ tz_rule TinyTimezone::tz_rules[2];
 TinyTimezone::TinyTimezone() {
   char tmp[4] = { 'U','T','C',0 };;
   tinytz_parse_tz(tmp);
-  set_dst(avr_dst);
-  set_zone(0);
 }
 
 void TinyTimezone::setTZ(const char *tz) {
   tinytz_parse_tz(tz);
-  set_zone(tz_rules[0].offset);
 #if 0
   Serial.print(F("TinyTZ.setTZ: "));
   Serial.println(tz);

@@ -42,9 +42,6 @@
   ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
 
 
-typedef uint32_t time_t;
-
-
 /* tz_rules[0] is standard, tz_rules[1] is daylight.  */
 //static tz_rule tz_rules[2];
 #define tz_rules TinyTimezone::tz_rules
@@ -346,7 +343,7 @@ void __tzset_compute_change (tz_rule *rule, int year)
       {
 	unsigned int i;
 	int d, m1, yy0, yy1, yy2, dow;
-	const unsigned short int *myday =
+	const unsigned int *myday =
 	  &__mon_yday[__isleap (year)][rule->m];
 
 	/* First add SECSPERDAY for each day in months before M.  */

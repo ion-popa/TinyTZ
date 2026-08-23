@@ -18,8 +18,9 @@
   along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <Arduino.h>
 #include <time.h>
+#include <string.h>
+#include <stdlib.h>
 #include "TinyTZ.h"
 
 #define min(a, b)    ((a) < (b) ? (a) : (b))
@@ -63,11 +64,10 @@ int __parse_TZ_string(const char *str) {
     const char separator2[] = "/";
     const char separator3[] = ".";
     
-    byte state = 0;
     char offset[10];
     char buf[65];    // parse only first 64 bytes of TZ string... 
     char *s, *e, *saveptr, *saveptr2, *saveptr3;
-    byte l = min(sizeof(buf)-1, strlen(str));
+    uint8_t l = min(sizeof(buf)-1, strlen(str));
     int n,hours,mins,secs;
     long o;
 
