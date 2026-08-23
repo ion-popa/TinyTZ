@@ -86,7 +86,7 @@ class TinyTimezone
   static char* getPosixTz();
 
 private:
-  char* mPosixTz = "";
+  const char* mPosixTz = "";
 
 };
 

@@ -546,7 +546,7 @@ TinyTimezone::TinyTimezone() {
 }
 
 void TinyTimezone::setTZ(const char *tz) {
-  mPosixTz = tz;
+  TinyTZ.mPosixTz = tz;
   tinytz_parse_tz(tz);
 #if 0
   Serial.print(F("TinyTZ.setTZ: "));
