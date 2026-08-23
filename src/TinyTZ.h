@@ -26,6 +26,7 @@
 #define TINYTZ_H
 
 #include <stdint.h>
+#include <time.h>
 /* Set TINY_PARSER to select POSIX TZ string parser:
      0 = GNU C Library parser
      1 = TinyTZ parser
@@ -69,15 +70,19 @@ class TinyTimezone
 
   TinyTimezone();
   
+  static void setTzRegion(const char *region, const char *city);
+  static void setTzCity(const char *city);
   static void setTZ(const char *tz = NULL);
-  static int avr_dst(const uint32_t * timer, int32_t * z);
   const char* timezone(int isdst = 0) {
     return tz_rules[(isdst ? 1 : 0)].name;
   }
   long offset(int isdst = 0) {
     return tz_rules[(isdst ? 1 : 0)].offset;
   }
-  static int isdst(uint32_t time);
+  long offset(time_t timer) {
+    return tz_rules[(isdst(timer) ? 1 : 0)].offset;
+  }
+  static int isdst(time_t time);
 
 
 };
