@@ -542,10 +542,11 @@ tz_rule TinyTimezone::tz_rules[2];
 static int tz_name_cmp(const char * target, const char * other);
 
 TinyTimezone::TinyTimezone() {
-  tinytz_parse_tz(TINYTZ_DEFAULT_TZ);
+  setTZ(TINYTZ_DEFAULT_TZ);
 }
 
 void TinyTimezone::setTZ(const char *tz) {
+  mPosixTz = tz;
   tinytz_parse_tz(tz);
 #if 0
   Serial.print(F("TinyTZ.setTZ: "));
