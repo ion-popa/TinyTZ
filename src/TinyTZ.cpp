@@ -658,7 +658,7 @@ static int tz_name_cmp(const char * target, const char * other)
         return -2;
     }
 
-    for (int i = 0; i < strlen(target); i++) 
+    for (unsigned int i = 0; i < strlen(target); i++) 
     {
         if((target[i] == '_' || target[i] == '-' || target[i] == ' ') && (other[i] == '_' || other[i] == '-' || other[i] == ' ')) 
         {
