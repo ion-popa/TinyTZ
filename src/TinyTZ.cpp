@@ -28,6 +28,8 @@
 #include "stdio.h"
 
 
+#define TINYTZ_DEFAULT_TZ "UTC0"
+
 void __tzset_compute_change (tz_rule *rule, int year);
 
 #if TINY_PARSER
@@ -540,8 +542,7 @@ tz_rule TinyTimezone::tz_rules[2];
 static int tz_name_cmp(const char * target, const char * other);
 
 TinyTimezone::TinyTimezone() {
-  char tmp[4] = { 'U','T','C',0 };;
-  tinytz_parse_tz(tmp);
+  tinytz_parse_tz(TINYTZ_DEFAULT_TZ);
 }
 
 void TinyTimezone::setTZ(const char *tz) {
@@ -602,28 +603,38 @@ void TinyTimezone::setTzRegion(const char *region, const char *city) {
     memset(temp_tz_name, 0, TINYTZ_REGION_MAX_SIZE);
     snprintf(full_tz_name, TINYTZ_REGION_MAX_SIZE, "%s/%s", region, city);
     int tz_data_size = sizeof(tz_data) / sizeof(tz_data[0]);
+    bool found = false;
     for (int i = 0; i < tz_data_size; i++) 
     {
         snprintf(temp_tz_name, TINYTZ_REGION_MAX_SIZE, "%s/%s", tz_data[i].region, tz_data[i].city);
         if (tz_name_cmp(full_tz_name, temp_tz_name) == 0) 
         {
             setTZ(tz_data[i].posix_tz);
+            found = true;
             break;
         }
     }
     free(full_tz_name);
     free(temp_tz_name);
+    if (!found) {
+        setTZ(TINYTZ_DEFAULT_TZ);
+    }
 }
 
 void TinyTimezone::setTzCity(const char *city) {
     int tz_data_size = sizeof(tz_data) / sizeof(tz_data[0]);
+    bool found = false;
     for (int i = 0; i < tz_data_size; i++) 
     {
         if (tz_name_cmp(city, tz_data[i].city) == 0) 
         {
             setTZ(tz_data[i].posix_tz);
+            found = true;
             break;
         }
+    }
+    if (!found) {
+        setTZ(TINYTZ_DEFAULT_TZ);
     }
 }
 
