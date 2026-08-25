@@ -545,6 +545,10 @@ TinyTimezone::TinyTimezone() {
   setTZ(TINYTZ_DEFAULT_TZ);
 }
 
+const char* TinyTimezone::getPosixTz() {
+    return this->mPosixTz;
+}
+
 void TinyTimezone::setTZ(const char *tz) {
   TinyTZ.mPosixTz = tz;
   tinytz_parse_tz(tz);

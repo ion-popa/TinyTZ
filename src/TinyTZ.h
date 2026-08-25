@@ -83,7 +83,7 @@ class TinyTimezone
     return tz_rules[(isdst(timer) ? 1 : 0)].offset;
   }
   static int isdst(time_t time);
-  static char* getPosixTz();
+  const char* getPosixTz();
 
 private:
   const char* mPosixTz = "";
